@@ -3,6 +3,7 @@
   import type { AppSettings, ProviderLayout } from './types';
   import type { ProviderCatalogIndex } from './metrics';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import ProviderIcon from './ProviderIcon.svelte';
   import { reorderFlip } from './motion';
   import { pointerReorder } from './pointerReorder';
@@ -85,8 +86,8 @@
         <button class="provider-list-main" type="button" onclick={() => onOpen(provider.id)}
           ><ProviderIcon providerId={provider.id} /><span
             ><b>{providerDisplayName(provider.id)}</b><small
-              >{provider.metrics.length} metrics</small
-            ></span
+              >{t('{count} metrics', { count: provider.metrics.length })}</small
+            ><!-- {provider.metrics.length} metrics --></span
           ></button
         >
         <label class="switch"
@@ -108,9 +109,9 @@
       </div>
     {/each}
   </div>
-  <button class="screen-cross-link" type="button" aria-label="Settings" onclick={onSettings}>
+  <button class="screen-cross-link" type="button" aria-label={t('Settings')} onclick={onSettings}>
     <Icon name="gear" size={17} />
-    <span><b>Settings</b><small>Notifications, appearance and more</small></span>
+    <span><b>{t('Settings')}</b><small>{t('Notifications, appearance and more')}</small></span>
     <Icon name="chevron-right" size={13} strokeWidth={2.2} />
   </button>
 </section>

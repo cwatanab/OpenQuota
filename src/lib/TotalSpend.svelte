@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import { formatSpendValue, totalSpendRingCenter } from './metricFormat';
   import SelectMenu from './SelectMenu.svelte';
   import type { ProviderCatalogIndex } from './metrics';
@@ -96,7 +97,7 @@
       class="icon-button icon-button--plain total-card__share"
       type="button"
       aria-label={`Share ${metricTitle()} Screenshot`}
-      data-tooltip="Share Screenshot"
+      data-tooltip={t('Share Screenshot')}
       onclick={share}
       ><Icon name={shareCopied ? 'check' : 'share'} size={14} strokeWidth={1.8} /></button
     >
@@ -113,13 +114,13 @@
           class:active={settings.totalSpendPeriod === option[0]}
           type="button"
           onclick={() => patch({ totalSpendPeriod: option[0] as AppSettings['totalSpendPeriod'] })}
-          >{option[1]}</button
+          >{t(option[1])}</button
         >
       {/each}
     </div>
     {#if projection.centerValue === null}
       <div class="total-card__empty">
-        <span>{emptySpendMessage(settings.totalSpendMetric)}</span>
+        <span>{t(emptySpendMessage(settings.totalSpendMetric))}</span>
       </div>
     {:else}
       <div class="total-card__body">

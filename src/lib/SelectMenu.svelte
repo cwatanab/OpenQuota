@@ -3,6 +3,7 @@
   import { cubicOut } from 'svelte/easing';
   import type { TransitionConfig } from 'svelte/transition';
   import Icon from './Icon.svelte';
+import { t } from './i18n.svelte';
 
   export interface SelectOption {
     value: string;
@@ -183,7 +184,7 @@
     onclick={() => (open ? (open = false) : void openAndFocus())}
     onkeydown={triggerKeydown}
   >
-    <span>{selectedLabel}</span><Icon name="chevron-down" size={12} strokeWidth={2} />
+    <span>{t(selectedLabel)}</span><Icon name="chevron-down" size={12} strokeWidth={2} />
   </button>
   {#if open}
     <div
@@ -216,7 +217,7 @@
                 strokeWidth={2.2}
               />{/if}</span
           >
-          <span>{option.label}</span>
+          <span>{t(option.label)}</span>
         </button>
       {/each}
     </div>

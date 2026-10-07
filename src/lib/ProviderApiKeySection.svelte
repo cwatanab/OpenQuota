@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { deleteProviderApiKey, getProviderApiKeyState, saveProviderApiKey } from './backend';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import ProviderIcon from './ProviderIcon.svelte';
   import type { ApiKeyStatus, ProviderApiKeyState } from './types';
 
@@ -30,13 +31,13 @@
   const canClear = $derived(status === 'saved' || status === 'overrideActive');
   const sourceLabel = $derived(
     status === 'fromEnvironment'
-      ? 'From Your Environment'
+      ? t('From Your Environment')
       : status === 'fromConfig'
-        ? 'From Config File'
+        ? t('From Config File')
         : status === 'saved'
-          ? 'Saved securely'
+          ? t('Saved securely')
           : status === 'overrideActive'
-            ? 'Custom Key'
+            ? t('Custom Key')
             : '',
   );
 

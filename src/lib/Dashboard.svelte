@@ -8,6 +8,7 @@
   import ProviderLinks from './ProviderLinks.svelte';
   import ProviderNoticeRow from './ProviderNoticeRow.svelte';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import MetricRenderer from './MetricRenderer.svelte';
   import TotalSpend from './TotalSpend.svelte';
   import type { SpendProjection } from './totalSpend';
@@ -396,12 +397,12 @@
 {#if !settings.detectionNoticeDismissed}
   <section class="detection-card" out:scale={{ start: 0.95, ...springMotion(reducedMotion) }}>
     <div>
-      <strong>Welcome to OpenQuota</strong><span
-        >We set you up with the AI tools found on your computer. Add or hide providers any time.</span
+      <strong>{t('Welcome to OpenQuota')}</strong><span
+        >{t('We set you up with the AI tools found on your computer. Add or hide providers any time.')}</span
       >
     </div>
-    <button type="button" onclick={onCustomize}>Open Customize</button>
-    <button class="dismiss" type="button" aria-label="Dismiss" onclick={dismissDetection}
+    <button type="button" onclick={onCustomize}>{t('Open Customize')}</button>
+    <button class="dismiss" type="button" aria-label={t('Close')} onclick={dismissDetection}
       ><Icon name="close" size={10} strokeWidth={2.2} /></button
     >
   </section>
@@ -656,19 +657,19 @@
       >
       <hr />
       <button type="button" role="menuitem" onclick={() => onRefresh(menuProvider.id)}
-        ><Icon name="refresh" size={15} />Refresh {providerDisplayName(menuProvider.id)}</button
+        ><Icon name="refresh" size={15} />{t('Refresh {name}', { name: providerDisplayName(menuProvider.id) })}<!-- Refresh {providerDisplayName(menuProvider.id)} --></button
       >
       {#if canRenameProvider(menuProvider.id, renamableProviderIds)}
         <button type="button" role="menuitem" onclick={() => onRenameProvider(menuProvider.id)}
-          ><Icon name="edit" size={15} />Rename…</button
+          ><Icon name="edit" size={15} />{t('Rename…')}</button
         >
       {/if}
       <button type="button" role="menuitem" onclick={() => onOpenProviderCustomize(menuProvider.id)}
-        ><Icon name="sliders" size={15} />Customize…</button
+        ><Icon name="sliders" size={15} />{t('Customize…')}</button
       >
       <hr />
       <button type="button" role="menuitem" onclick={() => onShare(menuProvider.id)}
-        ><Icon name="share" size={15} />Share Screenshot</button
+        ><Icon name="share" size={15} />{t('Share Screenshot')}</button
       >
     </div>
   {/if}
@@ -692,7 +693,7 @@
         type="button"
         role="menuitem"
         onclick={() => patchMetric(metricProvider.id, menuMetric.id, { enabled: false })}
-        ><Icon name="power" size={15} />Hide</button
+        ><Icon name="power" size={15} />{t('Hide')}</button
       >
       {#if metricDefinition(menuMetric.id)?.pinnable}
         <button
@@ -705,19 +706,19 @@
               pinned: !menuMetric.pinned,
             })}
           ><Icon name={menuMetric.pinned ? 'star-filled' : 'star'} size={15} />{menuMetric.pinned
-            ? 'Unstar'
-            : 'Star for menu bar'}</button
+            ? t('Unstar')
+            : t('Starred for menu bar')}</button
         >
       {/if}
       <hr />
       <button type="button" role="menuitem" onclick={() => onRefresh(metricProvider.id)}
-        ><Icon name="refresh" size={15} />Refresh {providerDisplayName(metricProvider.id)}</button
+        ><Icon name="refresh" size={15} />{t('Refresh {name}', { name: providerDisplayName(metricProvider.id) })}<!-- Refresh {providerDisplayName(metricProvider.id)} --></button
       >
       <button
         type="button"
         role="menuitem"
         onclick={() => onOpenProviderCustomize(metricProvider.id)}
-        ><Icon name="sliders" size={15} />Customize…</button
+        ><Icon name="sliders" size={15} />{t('Customize…')}</button
       >
     </div>
   {/if}
@@ -725,7 +726,7 @@
 
 {#if enabledProviders.length === 0}
   <section class="empty-dashboard">
-    <span>Turn on Customize to choose what to show.</span>
+    <span>{t('Turn on Customize to choose what to show.')}</span>
   </section>
 {/if}
 

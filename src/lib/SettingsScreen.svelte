@@ -9,6 +9,12 @@
     SettingsViewState,
     UpdateFailure,
   } from './types';
+  import {
+    getLanguageSetting,
+    setLanguageSetting,
+    t,
+    type LanguageSetting,
+  } from './i18n.svelte';
 
   interface Props {
     settingsView: SettingsViewState;
@@ -44,6 +50,7 @@
   }: Props = $props();
   let recording = $state(false);
   let logActionError = $state<string | null>(null);
+  let languageSetting = $state<LanguageSetting>(getLanguageSetting());
   const settings = $derived(settingsView.settings);
   const revealLogLabel = $derived(
     platform === 'macos'
@@ -137,37 +144,52 @@
     </div>{/if}
 
   <div class="settings-section">
-    <h2>General</h2>
+    <h2>{t('General')}</h2>
+    <div class="setting-row">
+      <span><b>{t('Language')}</b></span><SelectMenu
+        label="Language"
+        value={languageSetting}
+        options={[
+          { value: 'system', label: 'Auto' },
+          { value: 'en', label: 'English' },
+          { value: 'ja', label: '日本語' },
+        ]}
+        onChange={(value) => {
+          languageSetting = value as LanguageSetting;
+          setLanguageSetting(value as LanguageSetting);
+        }}
+      />
+    </div>
     <label class="setting-row"
-      ><span><b>Show Total Spend</b></span><input
+      ><span><b>{t('Show Total Spend')}</b></span><input
         type="checkbox"
         checked={settings.showTotalSpend}
         onchange={(event) => patch({ showTotalSpend: event.currentTarget.checked })}
       /></label
     >
     <label class="setting-row"
-      ><span><b>Launch at Login</b></span><input
+      ><span><b>{t('Launch at Login')}</b></span><input
         type="checkbox"
         checked={settings.launchAtLogin}
         onchange={(event) => patch({ launchAtLogin: event.currentTarget.checked })}
       /></label
     >
     <div class="setting-row">
-      <span><b>Global Shortcut</b></span>
+      <span><b>{t('Global Shortcut')}</b></span>
       <div class="shortcut-field">
         <button
           class:recording
           type="button"
           aria-pressed={recording}
           aria-describedby="shortcut-recording-help"
-          data-tooltip="Open OpenQuota from anywhere"
+          data-tooltip={t('Open OpenQuota from anywhere')}
           onclick={() => (recording = !recording)}
           onkeydown={record}
           onblur={() => (recording = false)}
-          >{recording ? 'Type Shortcut…' : (settings.globalShortcut ?? 'Record Shortcut')}</button
+          >{recording ? t('Type Shortcut…') : (settings.globalShortcut ?? t('Record Shortcut'))}</button
         >{#if settings.globalShortcut}<button
             type="button"
-            aria-label="Clear global shortcut"
+            aria-label={t('Clear global shortcut')}
             onclick={() => patch({ globalShortcut: null })}
             ><Icon name="close" size={10} strokeWidth={2.2} /></button
           >{/if}
@@ -180,10 +202,10 @@
   </div>
 
   <div class="settings-section">
-    <h2>Appearance</h2>
+    <h2>{t('Appearance')}</h2>
     {#if platform === 'macos'}
       <div class="setting-row">
-        <span><b>Icon Style</b></span><SelectMenu
+        <span><b>{t('Icon Style')}</b></span><SelectMenu
           label="Icon Style"
           value={settings.menuBarStyle}
           options={[
@@ -195,7 +217,7 @@
       </div>
     {/if}
     <div class="setting-row">
-      <span><b>Theme</b></span><SelectMenu
+      <span><b>{t('Theme')}</b></span><SelectMenu
         label="Theme"
         value={settings.theme}
         options={[
@@ -207,7 +229,7 @@
       />
     </div>
     <div class="setting-row">
-      <span><b>Density</b></span><SelectMenu
+      <span><b>{t('Density')}</b></span><SelectMenu
         label="Density"
         value={settings.density}
         options={[
@@ -218,7 +240,7 @@
       />
     </div>
     <label class="setting-row"
-      ><span><b>Reduce Animations</b></span><input
+      ><span><b>{t('Reduce Animations')}</b></span><input
         type="checkbox"
         checked={settings.reduceAnimations}
         onchange={(event) => patch({ reduceAnimations: event.currentTarget.checked })}
@@ -226,7 +248,7 @@
     >
     {#if settingsView.trayAvailable}
       <div class="setting-row">
-        <span><b>Window Mode</b></span><SelectMenu
+        <span><b>{t('Window Mode')}</b></span><SelectMenu
           label="Window Mode"
           value={settings.windowMode}
           options={[
@@ -238,7 +260,7 @@
       </div>
     {/if}
     <div class="setting-row">
-      <span><b>Panel Height</b></span><SelectMenu
+      <span><b>{t('Panel Height')}</b></span><SelectMenu
         label="Panel Height"
         value={panelHeightMode}
         options={[
@@ -249,7 +271,7 @@
       />
     </div>
     <div class="setting-row">
-      <span><b>Time Format</b></span><SelectMenu
+      <span><b>{t('Time Format')}</b></span><SelectMenu
         label="Time Format"
         value={settings.timeFormat}
         options={[
@@ -263,9 +285,9 @@
   </div>
 
   <div class="settings-section">
-    <h2>Usage Display</h2>
+    <h2>{t('Usage Display')}</h2>
     <div class="setting-row">
-      <span><b>Show Usage As</b></span><SelectMenu
+      <span><b>{t('Show Usage As')}</b></span><SelectMenu
         label="Show Usage As"
         value={settings.usageDisplay}
         options={[
@@ -276,7 +298,7 @@
       />
     </div>
     <div class="setting-row">
-      <span><b>Reset Times</b></span><SelectMenu
+      <span><b>{t('Reset Times')}</b></span><SelectMenu
         label="Reset Times"
         value={settings.resetDisplay}
         options={[
@@ -288,7 +310,7 @@
     </div>
     <label class="setting-row"
       ><span
-        ><b>Always Show Pacing</b><i
+        ><b>{t('Always Show Pacing')}</b><i
           class="setting-info"
           data-tooltip="Show how you're pacing on every metric, not just ones near their limit"
           aria-label="Show how you're pacing on every metric, not just ones near their limit"
@@ -304,11 +326,11 @@
 
   <div class="settings-section">
     <h2>
-      Notifications {#if notificationsNeedAttention}<span class="permission-warning">!</span>{/if}
+      {t('Notifications')} {#if notificationsNeedAttention}<span class="permission-warning">!</span>{/if}
     </h2>
     <label class="setting-row"
       ><span
-        ><b>Almost Out</b><i
+        ><b>{t('Almost Out')}</b><i
           class="setting-info"
           data-tooltip="Alert when a limit drops below 10% remaining."
           aria-label="Alert when a limit drops below 10% remaining."
@@ -322,7 +344,7 @@
     >
     <label class="setting-row"
       ><span
-        ><b>Cutting It Close</b><i
+        ><b>{t('Cutting It Close')}</b><i
           class="setting-info"
           data-tooltip="Alert when a limit is projected to finish with little left."
           aria-label="Alert when a limit is projected to finish with little left."
@@ -336,7 +358,7 @@
     >
     <label class="setting-row"
       ><span
-        ><b>Will Run Out</b><i
+        ><b>{t('Will Run Out')}</b><i
           class="setting-info"
           data-tooltip="Alert when a limit is projected to finish before it resets."
           aria-label="Alert when a limit is projected to finish before it resets."
@@ -354,12 +376,12 @@
           <span
             ><b
               >{settingsView.notificationPermission === 'denied'
-                ? 'Notifications are blocked'
-                : 'Permission is required'}</b
+                ? t('Notifications are blocked')
+                : t('Permission is required')}</b
             ><small
               >{settingsView.notificationPermission === 'denied'
-                ? 'Enable OpenQuota notifications in system settings.'
-                : 'Allow notifications to receive the alerts selected above.'}</small
+                ? t('Enable OpenQuota notifications in system settings.')
+                : t('Allow notifications to receive the alerts selected above.')}</small
             ></span
           >
           <button
@@ -368,7 +390,7 @@
             onclick={settingsView.notificationPermission === 'denied'
               ? onOpenNotificationSettings
               : onRequestNotifications}
-            >{settingsView.notificationPermission === 'denied' ? 'Open Settings' : 'Allow'}</button
+            >{settingsView.notificationPermission === 'denied' ? t('Open Settings') : t('Allow')}</button
           >
         </div>
       </div>
@@ -376,9 +398,9 @@
   </div>
 
   <div class="settings-section">
-    <h2>Advanced</h2>
+    <h2>{t('Advanced')}</h2>
     <div class="setting-row">
-      <span><b>Log Level</b></span><SelectMenu
+      <span><b>{t('Log Level')}</b></span><SelectMenu
         label="Log Level"
         value={settings.logLevel}
         options={[
@@ -392,12 +414,12 @@
     </div>
     <div class="setting-row setting-row--button">
       <button class="secondary-button settings-wide-button" type="button" onclick={copyLogPath}
-        >Copy Log Path</button
+        >{t('Copy Log Path')}</button
       >
     </div>
     <div class="setting-row setting-row--button">
       <button class="secondary-button settings-wide-button" type="button" onclick={revealLogFile}
-        >{revealLogLabel}</button
+        >{t(revealLogLabel)}</button
       >
     </div>
     {#if logActionError}<p class="settings-note log-action-error" role="alert">
@@ -407,15 +429,15 @@
       <button
         class="secondary-button settings-wide-button settings-reset-button"
         type="button"
-        onclick={onResetAllSettings}>Reset All Settings…</button
+        onclick={onResetAllSettings}>{t('Reset All Settings…')}</button
       >
     </div>
   </div>
 
   <div class="settings-section">
-    <h2>Updates</h2>
+    <h2>{t('Updates')}</h2>
     <label class="setting-row"
-      ><span><b>Check for Updates Automatically</b></span><input
+      ><span><b>{t('Check for Updates Automatically')}</b></span><input
         type="checkbox"
         checked={settings.autoCheckUpdates}
         onchange={(event) => patch({ autoCheckUpdates: event.currentTarget.checked })}
@@ -426,7 +448,7 @@
         type="button"
         class="secondary-button settings-wide-button"
         disabled={checkingUpdate}
-        onclick={onCheckForUpdates}>{checkingUpdate ? 'Checking…' : 'Check for Updates…'}</button
+        onclick={onCheckForUpdates}>{checkingUpdate ? t('Checking…') : t('Check for Updates…')}</button
       >
     </div>
     {#if updateError}<div class="settings-update-error" role="alert">
@@ -436,7 +458,7 @@
 
   <button class="screen-cross-link" type="button" aria-label="Customize" onclick={onCustomize}>
     <Icon name="sliders" size={17} />
-    <span><b>Customize</b><small>Choose what's visible and where</small></span>
+    <span><b>{t('Customize')}</b><small>{t("Choose what's visible and where")}</small></span>
     <Icon name="chevron-right" size={13} strokeWidth={2.2} />
   </button>
 </section>

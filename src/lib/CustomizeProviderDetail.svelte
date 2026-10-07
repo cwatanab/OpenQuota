@@ -4,6 +4,7 @@
   import type { ProviderCatalogIndex } from './metrics';
   import type { AppSettings, MetricLayout, MetricSection, ProviderLayout } from './types';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import ProviderApiKeySection from './ProviderApiKeySection.svelte';
   import ProviderNameSection from './ProviderNameSection.svelte';
   import { reorderFlip } from './motion';
@@ -79,7 +80,7 @@
     updateMetric({ ...metric, pinned: !metric.pinned });
   }
   function showMessage(text: string, kind: 'success' | 'denied') {
-    message = text;
+    message = t(text);
     messageKind = kind;
     if (messageTimer) clearTimeout(messageTimer);
     messageTimer = setTimeout(() => (message = ''), 2500);
@@ -132,7 +133,7 @@
         role="group"
         aria-label={section === 'alwaysVisible' ? 'Always Visible metrics' : 'On Demand metrics'}
       >
-        <h2>{section === 'alwaysVisible' ? 'Always Visible' : 'On Demand'}</h2>
+        <h2>{section === 'alwaysVisible' ? t('Always Visible') : t('On Demand')}</h2>
         <div class="metric-list" role="list">
           {#if sectionMetrics.length === 0}
             <div
@@ -141,7 +142,7 @@
               data-reorder-group={`customize-metrics:${provider.id}`}
               data-reorder-id={`section:${section}`}
             >
-              Drag metrics here
+              {t('Drag metrics here')}
             </div>
           {/if}
           {#each sectionMetrics as metric (metric.id)}
