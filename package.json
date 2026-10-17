@@ -9,6 +9,7 @@
     "build": "vite build",
     "build:installer": "tauri build --bundles nsis",
     "build:linux": "tauri build --bundles deb,appimage",
+    "build:windows-exe": "corepack pnpm build && cargo xwin build --manifest-path src-tauri/Cargo.toml --target x86_64-pc-windows-msvc --release --features tauri/custom-protocol",
     "check": "svelte-check --tsconfig ./tsconfig.app.json",
     "test": "vitest run",
     "test:watch": "vitest",

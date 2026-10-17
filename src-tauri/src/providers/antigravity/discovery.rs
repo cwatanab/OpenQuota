@@ -11,6 +11,7 @@ pub struct LanguageServer {
     pub csrf: String,
     pub ports: Vec<u16>,
     pub extension_port: Option<u16>,
+    pub is_agy: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -197,10 +198,12 @@ fn server_from_command(
         .filter(|port| *port > 0);
     ports.sort_unstable();
     ports.dedup();
+    let is_agy = options.process_name == "agy";
     (!ports.is_empty() || extension_port.is_some()).then_some(LanguageServer {
         csrf,
         ports,
         extension_port,
+        is_agy,
     })
 }
 

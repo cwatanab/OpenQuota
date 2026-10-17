@@ -39,7 +39,7 @@ pub enum CloudUserAgent {
 impl CloudUserAgent {
     fn as_str(self) -> &'static str {
         match self {
-            Self::Antigravity => "antigravity",
+            Self::Antigravity => "antigravity/cli/1.4.0",
             Self::Agy => "agy",
         }
     }
@@ -80,6 +80,7 @@ impl AntigravityClient {
         Ok(Self {
             local: Client::builder()
                 .danger_accept_invalid_certs(true)
+                .danger_accept_invalid_hostnames(true)
                 .timeout(std::time::Duration::from_secs(5))
                 .build()
                 .map_err(|_| AntigravityError::Unavailable)?,
@@ -92,46 +93,103 @@ impl AntigravityClient {
         })
     }
 
+    fn send_local_request(
+        &self,
+        scheme: &str,
+        port: u16,
+        csrf: &str,
+        method: &str,
+    ) -> Result<reqwest::blocking::Response, reqwest::Error> {
+        let url = format!("{scheme}://127.0.0.1:{port}/{SERVICE}/{method}");
+        self.local
+            .post(url)
+            .header("Content-Type", "application/json")
+            .header("Connect-Protocol-Version", "1")
+            .header("x-codeium-csrf-token", csrf)
+            .json(&json!({"metadata": {
+                "ideName": "antigravity",
+                "extensionName": "antigravity",
+                "ideVersion": "unknown",
+                "locale": "en"
+            }}))
+            .send()
+    }
+
     pub fn call_language_server(&self, server: &LanguageServer, method: &str) -> Option<Value> {
-        let mut endpoints = Vec::new();
+        // agy does not expose a local language server that accepts unauthenticated requests.
+        // Its internal ports require a CSRF token that is not exposed via CLI flags, and probing
+        // them causes Go net/http TLS handshake errors on the agy terminal console.
+        // Therefore, we never probe local endpoints for agy or when CSRF token is empty.
+        if server.is_agy || server.csrf.is_empty() {
+            return None;
+        }
+
         for port in &server.ports {
-            endpoints.push(("https", *port));
-            endpoints.push(("http", *port));
+            match self.send_local_request("https", *port, &server.csrf, method) {
+                Ok(response) => {
+                    crate::app_debug!(
+                        "http",
+                        "antigravity local language-server HTTP {}",
+                        response.status().as_u16()
+                    );
+                    if response.status().is_success() {
+                        if let Ok(body) = response.json() {
+                            return Some(body);
+                        }
+                    }
+                    // HTTPS responded on this port; do not probe plain HTTP on the same port.
+                    continue;
+                }
+                Err(err) => {
+                    crate::app_debug!(
+                        "http",
+                        "antigravity local language-server request unavailable"
+                    );
+                    // For agy, language server is HTTPS-only. Never fallback to HTTP.
+                    // For others, if the server failed during TLS handshake, it is an HTTPS server.
+                    // Do not fallback to plain HTTP to avoid triggering TLS handshake errors on the server.
+                    if server.is_agy || is_tls_error(&err) {
+                        continue;
+                    }
+                    if let Ok(response) =
+                        self.send_local_request("http", *port, &server.csrf, method)
+                    {
+                        crate::app_debug!(
+                            "http",
+                            "antigravity local language-server HTTP {}",
+                            response.status().as_u16()
+                        );
+                        if response.status().is_success() {
+                            if let Ok(body) = response.json() {
+                                return Some(body);
+                            }
+                        }
+                    } else {
+                        crate::app_debug!(
+                            "http",
+                            "antigravity local language-server request unavailable"
+                        );
+                    }
+                }
+            }
         }
         if let Some(port) = server.extension_port {
-            endpoints.push(("http", port));
-        }
-        for (scheme, port) in endpoints {
-            let url = format!("{scheme}://127.0.0.1:{port}/{SERVICE}/{method}");
-            let response = self
-                .local
-                .post(url)
-                .header("Content-Type", "application/json")
-                .header("Connect-Protocol-Version", "1")
-                .header("x-codeium-csrf-token", &server.csrf)
-                .json(&json!({"metadata": {
-                    "ideName": "antigravity",
-                    "extensionName": "antigravity",
-                    "ideVersion": "unknown",
-                    "locale": "en"
-                }}))
-                .send();
-            let Ok(response) = response else {
+            if let Ok(response) = self.send_local_request("http", port, &server.csrf, method) {
+                crate::app_debug!(
+                    "http",
+                    "antigravity local language-server HTTP {}",
+                    response.status().as_u16()
+                );
+                if response.status().is_success() {
+                    if let Ok(body) = response.json() {
+                        return Some(body);
+                    }
+                }
+            } else {
                 crate::app_debug!(
                     "http",
                     "antigravity local language-server request unavailable"
                 );
-                continue;
-            };
-            crate::app_debug!(
-                "http",
-                "antigravity local language-server HTTP {}",
-                response.status().as_u16()
-            );
-            if response.status().is_success() {
-                if let Ok(body) = response.json() {
-                    return Some(body);
-                }
             }
         }
         None
@@ -230,6 +288,35 @@ impl AntigravityClient {
             RefreshOutcome::Unavailable
         }
     }
+}
+
+fn is_tls_error(mut err: &(dyn std::error::Error + 'static)) -> bool {
+    loop {
+        let msg = err.to_string().to_ascii_lowercase();
+        if msg.contains("tls")
+            || msg.contains("ssl")
+            || msg.contains("handshake")
+            || msg.contains("certificate")
+            || msg.contains("bad record mac")
+            || msg.contains("alert")
+            || msg.contains("invalid cert")
+            || msg.contains("connection reset")
+            || msg.contains("connectionreset")
+            || msg.contains("forcibly closed")
+            || msg.contains("10054")
+            || msg.contains("wsarecv")
+            || msg.contains("invalidcontenttype")
+            || msg.contains("invalid content type")
+            || msg.contains("corrupt message")
+        {
+            return true;
+        }
+        match err.source() {
+            Some(source) => err = source,
+            None => break,
+        }
+    }
+    false
 }
 
 #[cfg(test)]
@@ -335,5 +422,85 @@ mod tests {
             timeout_client.refresh_google_token("secret-refresh"),
             RefreshOutcome::Unavailable
         ));
+    }
+
+    #[test]
+    fn detects_tls_error_patterns() {
+        let err = std::io::Error::new(std::io::ErrorKind::InvalidData, "tls handshake eof");
+        assert!(super::is_tls_error(&err));
+
+        let cert_err = std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "invalid certificate authority",
+        );
+        assert!(super::is_tls_error(&cert_err));
+
+        let reset_err = std::io::Error::new(
+            std::io::ErrorKind::ConnectionReset,
+            "wsarecv: An existing connection was forcibly closed by the remote host.",
+        );
+        assert!(super::is_tls_error(&reset_err));
+
+        let normal_err =
+            std::io::Error::new(std::io::ErrorKind::ConnectionRefused, "connection refused");
+        assert!(!super::is_tls_error(&normal_err));
+    }
+
+    #[test]
+    fn call_language_server_skips_http_fallback_on_tls_error() {
+        let server_url = test_http::serve_once(200, &[], r#"{"status":"ok"}"#);
+        let port: u16 = server_url.rsplit_once(':').unwrap().1.parse().unwrap();
+        let test_client = client(&server_url);
+
+        let server = super::LanguageServer {
+            csrf: "test-csrf".to_owned(),
+            ports: vec![port],
+            extension_port: None,
+            is_agy: false,
+        };
+        assert!(test_client.call_language_server(&server, "Test").is_none());
+
+        let agy_server = super::LanguageServer {
+            csrf: "test-csrf".to_owned(),
+            ports: vec![port],
+            extension_port: None,
+            is_agy: true,
+        };
+        assert!(test_client
+            .call_language_server(&agy_server, "Test")
+            .is_none());
+    }
+
+    #[test]
+    fn call_language_server_skips_when_is_agy_or_csrf_empty() {
+        let server_url = test_http::serve_once(200, &[], r#"{"status":"ok"}"#);
+        let port: u16 = server_url.rsplit_once(':').unwrap().1.parse().unwrap();
+        let test_client = client(&server_url);
+
+        let agy_server = super::LanguageServer {
+            csrf: "".to_owned(),
+            ports: vec![port],
+            extension_port: None,
+            is_agy: true,
+        };
+        assert!(test_client
+            .call_language_server(&agy_server, "Test")
+            .is_none());
+
+        let empty_csrf_server = super::LanguageServer {
+            csrf: "".to_owned(),
+            ports: vec![port],
+            extension_port: None,
+            is_agy: false,
+        };
+        assert!(test_client
+            .call_language_server(&empty_csrf_server, "Test")
+            .is_none());
+    }
+
+    #[test]
+    fn cloud_user_agent_strings() {
+        assert_eq!(CloudUserAgent::Antigravity.as_str(), "antigravity/cli/1.4.0");
+        assert_eq!(CloudUserAgent::Agy.as_str(), "agy");
     }
 }

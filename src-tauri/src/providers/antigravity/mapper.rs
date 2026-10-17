@@ -23,9 +23,15 @@ pub struct ModelConfig {
     resets_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
-const BUCKETS: [(&str, &str, &str, u64); 4] = [
+const BUCKETS: [(&str, &str, &str, u64); 5] = [
     ("gemini-5h", "geminiPro", "Session", 5 * 60 * 60),
     ("gemini-weekly", "geminiWeekly", "Weekly", 7 * 24 * 60 * 60),
+    (
+        "gemini-argon-wtu-weekly",
+        "geminiArgon",
+        "Gemini 4 Argon",
+        7 * 24 * 60 * 60,
+    ),
     ("3p-5h", "claude", "Claude", 5 * 60 * 60),
     (
         "3p-weekly",
@@ -292,6 +298,31 @@ mod tests {
         assert_eq!(quotas[0].id, "geminiPro");
         assert_eq!(quotas[0].used_percent, 20.0);
         assert_eq!(quotas[1].id, "claudeWeekly");
+    }
+
+    #[test]
+    fn maps_gemini_argon_quota() {
+        let value = json!({
+            "groups": [
+                {
+                    "displayName": "Gemini 4 Argon",
+                    "buckets": [
+                        {
+                            "bucketId": "gemini-argon-wtu-weekly",
+                            "displayName": "Gemini 4 Argon Weekly Limit",
+                            "remainingFraction": 0.85,
+                            "resetTime": "2026-10-23T02:24:50Z"
+                        }
+                    ]
+                }
+            ]
+        });
+        let quotas = parse_quota_summary(&value).unwrap();
+        assert_eq!(quotas.len(), 1);
+        assert_eq!(quotas[0].id, "geminiArgon");
+        assert_eq!(quotas[0].label, "Gemini 4 Argon");
+        assert_eq!(quotas[0].used_percent, 15.0);
+        assert_eq!(quotas[0].period_seconds, 7 * 24 * 60 * 60);
     }
 
     #[test]

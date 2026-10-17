@@ -58,6 +58,16 @@ pub(crate) fn definition() -> ProviderDefinition {
                 "W",
             ),
             MetricDefinition::quota(
+                "antigravity.geminiArgon",
+                "Gemini 4 Argon",
+                "geminiArgon",
+                false,
+                true,
+                MetricSection::OnDemand,
+                false,
+                "Ar",
+            ),
+            MetricDefinition::quota(
                 "antigravity.claude",
                 "Claude",
                 "claude",
