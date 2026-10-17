@@ -305,13 +305,15 @@
   }
   function stalenessTooltip(refreshedAt: string) {
     const elapsedSeconds = Math.max(0, Math.floor((now - Date.parse(refreshedAt)) / 1000));
-    if (!Number.isFinite(elapsedSeconds)) return 'Last update time unavailable';
-    if (elapsedSeconds < 60) return 'Last updated moments ago';
+    if (!Number.isFinite(elapsedSeconds)) return t('Last update time unavailable');
+    if (elapsedSeconds < 60) return t('Last updated moments ago');
     const minutes = Math.floor(elapsedSeconds / 60);
-    if (minutes < 60) return `Last updated ${minutes}m ago`;
+    if (minutes < 60) return t('Last updated {time}m ago', { time: minutes });
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return `Last updated ${hours}h${remainingMinutes ? ` ${remainingMinutes}m` : ''} ago`;
+    return remainingMinutes
+      ? t('Last updated {hours}h {minutes}m ago', { hours, minutes: remainingMinutes })
+      : t('Last updated {hours}h ago', { hours });
   }
 </script>
 
@@ -323,20 +325,22 @@
 />
 
 {#if updateStatus?.available && updateStatus.version !== settings.dismissedUpdateVersion}
-  <section class="hint-card update-banner" aria-label="Update Available">
+  <section class="hint-card update-banner" aria-label={t('Update Available')}>
     <span class="hint-card__icon"><Icon name="refresh" size={16} strokeWidth={2} /></span>
     <div>
-      <strong>Update Available</strong>
-      <span>OpenQuota {updateStatus.version} is ready to download.</span>
+      <strong>{t('Update Available')}</strong>
+      <span
+        >{t('OpenQuota {version} is ready to download.', { version: updateStatus.version })}</span
+      >
       {#if updateStatus.body}<details class="update-notes">
-          <summary>What’s new</summary>
+          <summary>{t('What’s new')}</summary>
           <p>{updateStatus.body}</p>
         </details>{/if}
       {#if installingUpdate && updateProgress}
         <div
           class="update-progress"
           role="progressbar"
-          aria-label="Update download"
+          aria-label={t('Update download')}
           aria-valuemin="0"
           aria-valuemax="100"
           aria-valuenow={updateProgress.phase === 'installing'
@@ -349,12 +353,12 @@
         </div>
         <small>
           {updateProgress.phase === 'installing'
-            ? 'Installing update…'
+            ? t('Installing update…')
             : updateProgress.phase === 'retrying'
-              ? 'Download interrupted. Retrying…'
+              ? t('Download interrupted. Retrying…')
               : updateProgress.percent === null
-                ? 'Downloading update…'
-                : `Downloading update… ${updateProgress.percent}%`}
+                ? t('Downloading update…')
+                : `${t('Downloading update…')} ${updateProgress.percent}%`}
         </small>
       {/if}
       {#if updateError}<div class="update-error" role="alert">
@@ -369,22 +373,22 @@
         disabled={installingUpdate}
         >{updateStatus.installable
           ? installingUpdate
-            ? 'Updating…'
+            ? t('Updating…')
             : updateError?.retryable
-              ? 'Try Again'
-              : 'Install Update'
-          : 'Download from GitHub'}</button
+              ? t('Try Again')
+              : t('Install Update')
+          : t('Download from GitHub')}</button
       >
       {#if updateStatus.installable && !installingUpdate}
         <button type="button" class="update-release-action" onclick={onOpenUpdatePage}
-          >View Release</button
+          >{t('View Release')}</button
         >
       {/if}
     </div>
     <button
       class="hint-card__dismiss"
       type="button"
-      aria-label="Dismiss"
+      aria-label={t('Dismiss')}
       onclick={() =>
         onSettingsChange({
           ...settings,
@@ -398,7 +402,9 @@
   <section class="detection-card" out:scale={{ start: 0.95, ...springMotion(reducedMotion) }}>
     <div>
       <strong>{t('Welcome to OpenQuota')}</strong><span
-        >{t('We set you up with the AI tools found on your computer. Add or hide providers any time.')}</span
+        >{t(
+          'We set you up with the AI tools found on your computer. Add or hide providers any time.',
+        )}</span
       >
     </div>
     <button type="button" onclick={onCustomize}>{t('Open Customize')}</button>
@@ -465,7 +471,8 @@
         {#if state?.snapshot && state.stale}<span
             class="status-badge"
             data-tooltip={stalenessTooltip(snapshot.refreshedAt)}
-            >Outdated<span class="sr-only">. {stalenessTooltip(snapshot.refreshedAt)}</span></span
+            >{t('Outdated')}<span class="sr-only">. {stalenessTooltip(snapshot.refreshedAt)}</span
+            ></span
           >{/if}
         <span
           class="provider-status-slot"
@@ -512,7 +519,7 @@
                 <button
                   type="button"
                   aria-label={`Configure ${providerDisplayName(provider.id)}`}
-                  onclick={() => onOpenProviderCustomize(provider.id)}>Configure</button
+                  onclick={() => onOpenProviderCustomize(provider.id)}>{t('Configure')}</button
                 >
               {/if}
               <button
@@ -520,7 +527,7 @@
                 aria-label={`${state.refreshing ? 'Retrying' : 'Retry'} ${providerDisplayName(provider.id)}`}
                 aria-disabled={state.refreshing}
                 onclick={(event) => void retryProvider(event, provider.id, state.refreshing)}
-                >{state.refreshing ? 'Retrying…' : 'Retry'}</button
+                >{state.refreshing ? t('Retrying…') : t('Retry')}</button
               >
             </span>
           </div>
@@ -572,7 +579,7 @@
             data-reorder-id="section:onDemand"
             type="button"
             aria-expanded={provider.expanded}
-            aria-label={provider.expanded ? 'Show less' : 'Show more'}
+            aria-label={provider.expanded ? t('Show less') : t('Show more')}
             onclick={() => toggleDemandMetrics(provider)}
           >
             <Icon
@@ -653,11 +660,15 @@
         type="button"
         role="menuitem"
         onclick={() => hideProvider(menuProvider.id)}
-        ><Icon name="power" size={15} />Hide {providerDisplayName(menuProvider.id)}</button
+        ><Icon name="power" size={15} />{t('Hide {name}', {
+          name: providerDisplayName(menuProvider.id),
+        })}</button
       >
       <hr />
       <button type="button" role="menuitem" onclick={() => onRefresh(menuProvider.id)}
-        ><Icon name="refresh" size={15} />{t('Refresh {name}', { name: providerDisplayName(menuProvider.id) })}<!-- Refresh {providerDisplayName(menuProvider.id)} --></button
+        ><Icon name="refresh" size={15} />{t('Refresh {name}', {
+          name: providerDisplayName(menuProvider.id),
+        })}<!-- Refresh {providerDisplayName(menuProvider.id)} --></button
       >
       {#if canRenameProvider(menuProvider.id, renamableProviderIds)}
         <button type="button" role="menuitem" onclick={() => onRenameProvider(menuProvider.id)}
@@ -712,7 +723,9 @@
       {/if}
       <hr />
       <button type="button" role="menuitem" onclick={() => onRefresh(metricProvider.id)}
-        ><Icon name="refresh" size={15} />{t('Refresh {name}', { name: providerDisplayName(metricProvider.id) })}<!-- Refresh {providerDisplayName(metricProvider.id)} --></button
+        ><Icon name="refresh" size={15} />{t('Refresh {name}', {
+          name: providerDisplayName(metricProvider.id),
+        })}</button
       >
       <button
         type="button"

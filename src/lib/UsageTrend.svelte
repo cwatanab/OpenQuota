@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { SvelteDate } from 'svelte/reactivity';
+  import { t } from './i18n.svelte';
   import { formatMetricNumber } from './metricFormat';
   import type { DailyUsage } from './types';
 
@@ -64,8 +65,8 @@
   });
 </script>
 
-<section class="trend-row" aria-label="Usage Trend">
-  <strong>Usage Trend</strong>
+<section class="trend-row" aria-label={t('Usage Trend')}>
+  <strong>{t('Usage Trend')}</strong>
   {#if total > 0}
     <div
       class="trend-chart-wrap"
@@ -90,10 +91,10 @@
       {#if detailVisible}
         <aside class="trend-detail" onmouseenter={revealDetail} onmouseleave={concealDetail}>
           <header>
-            <strong>Usage Trend</strong><span
+            <strong>{t('Usage Trend')}</strong><span
               >{hoveredDate
-                ? `${dayLabel(highlightedPoint.date)} · ${compact(highlightedPoint.tokens)} tokens`
-                : `peak ${compact(peak.tokens)} tokens`}</span
+                ? `${dayLabel(highlightedPoint.date)} · ${t('{count} tokens', { count: compact(highlightedPoint.tokens) })}`
+                : t('peak {count} tokens', { count: compact(peak.tokens) })}</span
             >
           </header>
           <div
@@ -115,12 +116,12 @@
               >{dayLabel(points.at(-1)?.date ?? '')}</span
             >
           </div>
-          <small class="trend-detail__source">{sourceNote}</small>
+          <small class="trend-detail__source">{t(sourceNote)}</small>
         </aside>
       {/if}
     </div>
   {:else}
-    <p class="trend-empty">No data</p>
+    <p class="trend-empty">{t('No data')}</p>
   {/if}
 </section>
 

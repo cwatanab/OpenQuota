@@ -2,6 +2,7 @@
   import { tick } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import { claimCodexResetCredit } from './backend';
+  import { t } from './i18n.svelte';
   import { formatReset } from './pacing';
   import type { ResetClaimOutcome } from './types';
 
@@ -48,7 +49,7 @@
         expiry,
         number: index + 1,
         severity,
-        exact: imminent ? 'Expiring soon' : exact,
+        exact: imminent ? t('Expiring soon') : exact,
         relative: imminent ? null : relative,
       };
     }),
@@ -56,13 +57,13 @@
 
   const resultMessage = $derived(
     result?.outcome === 'success'
-      ? 'Reset applied.'
+      ? t('Reset applied.')
       : result?.outcome === 'nothingToReset'
-        ? 'No active limit needs resetting.'
+        ? t('No active limit needs resetting.')
         : result?.outcome === 'noCredit'
-          ? 'This reset is no longer available.'
+          ? t('This reset is no longer available.')
           : result?.outcome === 'failed'
-            ? 'Could not use this reset. Try again.'
+            ? t('Could not use this reset. Try again.')
             : null,
   );
 
@@ -132,7 +133,7 @@
   style={`top:${top}px`}
   role="dialog"
   tabindex="-1"
-  aria-label={`${title} details`}
+  aria-label={t('{title} details', { title: t(title) })}
   onmouseenter={onEnter}
   onfocusin={onEnter}
   onmouseleave={() => {
@@ -168,9 +169,9 @@
                   aria-labelledby={`reset-confirm-title-${index}`}
                   aria-describedby={`reset-confirm-message-${index}`}
                 >
-                  <strong id={`reset-confirm-title-${index}`}>Use this reset?</strong>
+                  <strong id={`reset-confirm-title-${index}`}>{t('Use this reset?')}</strong>
                   <span id={`reset-confirm-message-${index}`}
-                    >Immediately reset your usage limits. This can't be undone.</span
+                    >{t("Immediately reset your usage limits. This can't be undone.")}</span
                   >
                   <div>
                     <button
@@ -178,13 +179,13 @@
                       type="button"
                       disabled={pendingExpiry !== null}
                       onclick={() => confirmClaim(entry.expiry)}
-                      >{pendingExpiry === entry.expiry ? 'Resetting…' : 'Use reset'}</button
+                      >{pendingExpiry === entry.expiry ? t('Resetting…') : t('Use reset')}</button
                     >
                     <button
                       bind:this={cancelButton}
                       type="button"
                       disabled={pendingExpiry !== null}
-                      onclick={() => void cancelClaim()}>Cancel</button
+                      onclick={() => void cancelClaim()}>{t('Cancel')}</button
                     >
                   </div>
                 </div>
@@ -197,9 +198,9 @@
                       class="reset-use"
                       type="button"
                       data-reset-trigger={index}
-                      aria-label={`Use reset expiring ${entry.exact}`}
+                      aria-label={t('Use reset expiring {date}', { date: entry.exact })}
                       disabled={pendingExpiry !== null}
-                      onclick={() => void beginClaim(entry.expiry, index)}>Use</button
+                      onclick={() => void beginClaim(entry.expiry, index)}>{t('Use')}</button
                     >
                   </div>
                 </div>
@@ -210,11 +211,11 @@
       </div>
     {:else if count > 0}
       <div class="reset-empty">
-        <strong>{count} available</strong>
-        <span>Expiry times unavailable</span>
+        <strong>{t('{count} available', { count })}</strong>
+        <span>{t('Expiry times unavailable')}</span>
       </div>
     {:else}
-      <div class="reset-empty"><span>No rate limit resets available</span></div>
+      <div class="reset-empty"><span>{t('No rate limit resets available')}</span></div>
     {/if}
   </div>
 </div>

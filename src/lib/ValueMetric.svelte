@@ -3,6 +3,7 @@
   import { formatMetricValue } from './metricFormat';
   import { formatReset } from './pacing';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import ResetCreditsDetail from './ResetCreditsDetail.svelte';
   import type { ValueMetric } from './types';
 
@@ -26,8 +27,15 @@
 
   const reading = $derived(
     metric?.values
-      .map((value) => formatMetricValue(value.number, value.kind, 'row', value.label ?? undefined))
-      .join(' · ') ?? 'No data',
+      .map((value) =>
+        formatMetricValue(
+          value.number,
+          value.kind,
+          'row',
+          value.label ? t(value.label) : undefined,
+        ),
+      )
+      .join(' · ') ?? t('No data'),
   );
   const tooltip = $derived.by(() => {
     if (!metric) return undefined;
@@ -118,14 +126,14 @@
 </script>
 
 <div class="value-row">
-  <span>{label}</span>
+  <span>{t(label)}</span>
   {#if showsResetDetail}
     <button
       bind:this={detailTrigger}
       type="button"
       class="value-reading value-reading--interactive"
       aria-expanded={detailOpen}
-      aria-label={`${label}: ${reading}`}
+      aria-label={`${t(label)}: ${reading}`}
       onmouseenter={scheduleShow}
       onmouseleave={scheduleHide}
       onfocus={scheduleShow}
@@ -138,8 +146,8 @@
       {#if hasEstimatedValue}
         <span
           class="value-estimate"
-          data-tooltip="Estimated locally, so it may differ from billed usage."
-          aria-label="Estimated value"
+          data-tooltip={t('Estimated locally, so it may differ from billed usage.')}
+          aria-label={t('Estimated value')}
           role="img"><Icon name="about" size={11} strokeWidth={1.9} /></span
         >
       {/if}
@@ -150,8 +158,8 @@
       {#if hasEstimatedValue}
         <span
           class="value-estimate"
-          data-tooltip="Estimated locally, so it may differ from billed usage."
-          aria-label="Estimated value"
+          data-tooltip={t('Estimated locally, so it may differ from billed usage.')}
+          aria-label={t('Estimated value')}
           role="img"><Icon name="about" size={11} strokeWidth={1.9} /></span
         >
       {/if}
@@ -161,7 +169,7 @@
 
 {#if detailOpen && metric}
   <ResetCreditsDetail
-    title={label}
+    title={t(label)}
     count={Math.max(0, Math.floor(metric.values[0]?.number ?? 0))}
     expiries={metric.expiriesAt}
     {now}

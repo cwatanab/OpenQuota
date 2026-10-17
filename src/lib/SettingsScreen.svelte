@@ -9,12 +9,7 @@
     SettingsViewState,
     UpdateFailure,
   } from './types';
-  import {
-    getLanguageSetting,
-    setLanguageSetting,
-    t,
-    type LanguageSetting,
-  } from './i18n.svelte';
+  import { getLanguageSetting, setLanguageSetting, t, type LanguageSetting } from './i18n.svelte';
 
   interface Props {
     settingsView: SettingsViewState;
@@ -80,7 +75,7 @@
       await onCopyLogPath();
       logActionError = null;
     } catch {
-      logActionError = "Couldn't copy the log path to the clipboard.";
+      logActionError = t("Couldn't copy the log path to the clipboard.");
     }
   }
   async function revealLogFile() {
@@ -88,7 +83,7 @@
       await onOpenLogFolder();
       logActionError = null;
     } catch {
-      logActionError = "Couldn't reveal the log file.";
+      logActionError = t("Couldn't reveal the log file.");
     }
   }
   function record(event: KeyboardEvent) {
@@ -147,10 +142,10 @@
     <h2>{t('General')}</h2>
     <div class="setting-row">
       <span><b>{t('Language')}</b></span><SelectMenu
-        label="Language"
+        label={t('Language')}
         value={languageSetting}
         options={[
-          { value: 'system', label: 'Auto' },
+          { value: 'system', label: t('Auto') },
           { value: 'en', label: 'English' },
           { value: 'ja', label: '日本語' },
         ]}
@@ -186,7 +181,9 @@
           onclick={() => (recording = !recording)}
           onkeydown={record}
           onblur={() => (recording = false)}
-          >{recording ? t('Type Shortcut…') : (settings.globalShortcut ?? t('Record Shortcut'))}</button
+          >{recording
+            ? t('Type Shortcut…')
+            : (settings.globalShortcut ?? t('Record Shortcut'))}</button
         >{#if settings.globalShortcut}<button
             type="button"
             aria-label={t('Clear global shortcut')}
@@ -206,11 +203,11 @@
     {#if platform === 'macos'}
       <div class="setting-row">
         <span><b>{t('Icon Style')}</b></span><SelectMenu
-          label="Icon Style"
+          label={t('Icon Style')}
           value={settings.menuBarStyle}
           options={[
-            { value: 'text', label: 'Text' },
-            { value: 'bars', label: 'Bars' },
+            { value: 'text', label: t('Text') },
+            { value: 'bars', label: t('Bars') },
           ]}
           onChange={(value) => patch({ menuBarStyle: value as AppSettings['menuBarStyle'] })}
         />
@@ -218,23 +215,23 @@
     {/if}
     <div class="setting-row">
       <span><b>{t('Theme')}</b></span><SelectMenu
-        label="Theme"
+        label={t('Theme')}
         value={settings.theme}
         options={[
-          { value: 'system', label: 'System' },
-          { value: 'light', label: 'Light' },
-          { value: 'dark', label: 'Dark' },
+          { value: 'system', label: t('System') },
+          { value: 'light', label: t('Light') },
+          { value: 'dark', label: t('Dark') },
         ]}
         onChange={(value) => patch({ theme: value as AppSettings['theme'] })}
       />
     </div>
     <div class="setting-row">
       <span><b>{t('Density')}</b></span><SelectMenu
-        label="Density"
+        label={t('Density')}
         value={settings.density}
         options={[
-          { value: 'default', label: 'Default' },
-          { value: 'compact', label: 'Compact' },
+          { value: 'default', label: t('Default') },
+          { value: 'compact', label: t('Compact') },
         ]}
         onChange={(value) => patch({ density: value as AppSettings['density'] })}
       />
@@ -249,11 +246,11 @@
     {#if settingsView.trayAvailable}
       <div class="setting-row">
         <span><b>{t('Window Mode')}</b></span><SelectMenu
-          label="Window Mode"
+          label={t('Window Mode')}
           value={settings.windowMode}
           options={[
-            { value: 'popup', label: 'Tray Popup' },
-            { value: 'floating', label: 'Floating Window' },
+            { value: 'popup', label: t('Tray Popup') },
+            { value: 'floating', label: t('Floating Window') },
           ]}
           onChange={(value) => patch({ windowMode: value as AppSettings['windowMode'] })}
         />
@@ -261,23 +258,23 @@
     {/if}
     <div class="setting-row">
       <span><b>{t('Panel Height')}</b></span><SelectMenu
-        label="Panel Height"
+        label={t('Panel Height')}
         value={panelHeightMode}
         options={[
-          { value: 'automatic', label: 'Automatic' },
-          { value: 'manual', label: 'Manual' },
+          { value: 'automatic', label: t('Automatic') },
+          { value: 'manual', label: t('Manual') },
         ]}
         onChange={(value) => onPanelHeightModeChange(value as PanelHeightMode)}
       />
     </div>
     <div class="setting-row">
       <span><b>{t('Time Format')}</b></span><SelectMenu
-        label="Time Format"
+        label={t('Time Format')}
         value={settings.timeFormat}
         options={[
-          { value: 'system', label: 'Auto' },
-          { value: 'twelveHour', label: '12-hour' },
-          { value: 'twentyFourHour', label: '24-hour' },
+          { value: 'system', label: t('Auto') },
+          { value: 'twelveHour', label: t('12-hour') },
+          { value: 'twentyFourHour', label: t('24-hour') },
         ]}
         onChange={(value) => patch({ timeFormat: value as AppSettings['timeFormat'] })}
       />
@@ -288,22 +285,22 @@
     <h2>{t('Usage Display')}</h2>
     <div class="setting-row">
       <span><b>{t('Show Usage As')}</b></span><SelectMenu
-        label="Show Usage As"
+        label={t('Show Usage As')}
         value={settings.usageDisplay}
         options={[
-          { value: 'left', label: 'Left' },
-          { value: 'used', label: 'Used' },
+          { value: 'left', label: t('Left') },
+          { value: 'used', label: t('Used') },
         ]}
         onChange={(value) => patch({ usageDisplay: value as AppSettings['usageDisplay'] })}
       />
     </div>
     <div class="setting-row">
       <span><b>{t('Reset Times')}</b></span><SelectMenu
-        label="Reset Times"
+        label={t('Reset Times')}
         value={settings.resetDisplay}
         options={[
-          { value: 'countdown', label: 'Countdown' },
-          { value: 'exact', label: 'Exact Time' },
+          { value: 'countdown', label: t('Countdown') },
+          { value: 'exact', label: t('Exact Time') },
         ]}
         onChange={(value) => patch({ resetDisplay: value as AppSettings['resetDisplay'] })}
       />
@@ -312,8 +309,8 @@
       ><span
         ><b>{t('Always Show Pacing')}</b><i
           class="setting-info"
-          data-tooltip="Show how you're pacing on every metric, not just ones near their limit"
-          aria-label="Show how you're pacing on every metric, not just ones near their limit"
+          data-tooltip={t("Show how you're pacing on every metric, not just ones near their limit")}
+          aria-label={t("Show how you're pacing on every metric, not just ones near their limit")}
           ><Icon name="about" size={12} strokeWidth={1.8} /></i
         ></span
       ><input
@@ -326,14 +323,15 @@
 
   <div class="settings-section">
     <h2>
-      {t('Notifications')} {#if notificationsNeedAttention}<span class="permission-warning">!</span>{/if}
+      {t('Notifications')}
+      {#if notificationsNeedAttention}<span class="permission-warning">!</span>{/if}
     </h2>
     <label class="setting-row"
       ><span
         ><b>{t('Almost Out')}</b><i
           class="setting-info"
-          data-tooltip="Alert when a limit drops below 10% remaining."
-          aria-label="Alert when a limit drops below 10% remaining."
+          data-tooltip={t('Alert when a limit drops below 10% remaining.')}
+          aria-label={t('Alert when a limit drops below 10% remaining.')}
           ><Icon name="about" size={12} strokeWidth={1.8} /></i
         ></span
       ><input
@@ -346,8 +344,8 @@
       ><span
         ><b>{t('Cutting It Close')}</b><i
           class="setting-info"
-          data-tooltip="Alert when a limit is projected to finish with little left."
-          aria-label="Alert when a limit is projected to finish with little left."
+          data-tooltip={t('Alert when a limit is projected to finish with little left.')}
+          aria-label={t('Alert when a limit is projected to finish with little left.')}
           ><Icon name="about" size={12} strokeWidth={1.8} /></i
         ></span
       ><input
@@ -360,8 +358,8 @@
       ><span
         ><b>{t('Will Run Out')}</b><i
           class="setting-info"
-          data-tooltip="Alert when a limit is projected to finish before it resets."
-          aria-label="Alert when a limit is projected to finish before it resets."
+          data-tooltip={t('Alert when a limit is projected to finish before it resets.')}
+          aria-label={t('Alert when a limit is projected to finish before it resets.')}
           ><Icon name="about" size={12} strokeWidth={1.8} /></i
         ></span
       ><input
@@ -390,7 +388,9 @@
             onclick={settingsView.notificationPermission === 'denied'
               ? onOpenNotificationSettings
               : onRequestNotifications}
-            >{settingsView.notificationPermission === 'denied' ? t('Open Settings') : t('Allow')}</button
+            >{settingsView.notificationPermission === 'denied'
+              ? t('Open Settings')
+              : t('Allow')}</button
           >
         </div>
       </div>
@@ -401,13 +401,13 @@
     <h2>{t('Advanced')}</h2>
     <div class="setting-row">
       <span><b>{t('Log Level')}</b></span><SelectMenu
-        label="Log Level"
+        label={t('Log Level')}
         value={settings.logLevel}
         options={[
-          { value: 'error', label: 'Error' },
-          { value: 'warn', label: 'Warning' },
-          { value: 'info', label: 'Info' },
-          { value: 'debug', label: 'Debug' },
+          { value: 'error', label: t('Error') },
+          { value: 'warn', label: t('Warning') },
+          { value: 'info', label: t('Info') },
+          { value: 'debug', label: t('Debug') },
         ]}
         onChange={(value) => patch({ logLevel: value as AppSettings['logLevel'] })}
       />
@@ -448,7 +448,8 @@
         type="button"
         class="secondary-button settings-wide-button"
         disabled={checkingUpdate}
-        onclick={onCheckForUpdates}>{checkingUpdate ? t('Checking…') : t('Check for Updates…')}</button
+        onclick={onCheckForUpdates}
+        >{checkingUpdate ? t('Checking…') : t('Check for Updates…')}</button
       >
     </div>
     {#if updateError}<div class="settings-update-error" role="alert">

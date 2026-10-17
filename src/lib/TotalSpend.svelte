@@ -47,7 +47,7 @@
     if (value === null) return undefined;
     const exact = formatSpendValue(value, settings.totalSpendMetric, 'full');
     if (projection.costEstimated && settings.totalSpendMetric !== 'tokens') {
-      return `${exact} · Estimated locally, so it may be off`;
+      return `${exact} · ${t('Estimated locally, so it may be off')}`;
     }
     return exact;
   }
@@ -88,8 +88,8 @@
       />
       <span
         class="icon-button icon-button--plain total-card__info"
-        data-tooltip={`Only includes ${providerNames.join(' and ')}.`}
-        aria-label={`Only includes ${providerNames.join(' and ')}`}
+        data-tooltip={t('Only includes {names}.', { names: providerNames.join(t(' and ')) })}
+        aria-label={t('Only includes {names}', { names: providerNames.join(t(' and ')) })}
         role="img"><Icon name="about" size={13} strokeWidth={1.9} /></span
       >
     </div>
@@ -140,7 +140,7 @@
           </svg>
           <div class="spend-ring__label" data-tooltip={centerTooltip(projection.centerValue)}>
             <strong>{ringCenter(projection.centerValue).primary}</strong><span
-              >{ringCenter(projection.centerValue).unit}</span
+              >{t(ringCenter(projection.centerValue).unit)}</span
             >
           </div>
         </div>

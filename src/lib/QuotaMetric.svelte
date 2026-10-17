@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import {
     formatLimit,
     formatReset,
@@ -36,35 +37,55 @@
   const remaining = $derived(Math.max(0, 100 - used));
   const countUnit = $derived(quota.unit?.trim() || 'requests');
   const estimateNote = $derived(
-    quota.sourceNote?.trim() || 'Estimated from local usage data and may differ from billed usage.',
+    quota.sourceNote?.trim()
+      ? t(quota.sourceNote.trim())
+      : t('Estimated from local usage data and may differ from billed usage.'),
   );
   const reading = $derived.by(() => {
     if (quota.format === 'count' && quota.usedValue !== null && quota.limitValue !== null) {
       const value =
         usageDisplay === 'left' ? Math.max(0, quota.limitValue - quota.usedValue) : quota.usedValue;
-      return `${value.toFixed(0)} ${countUnit} ${usageDisplay}`;
+      return t(usageDisplay === 'left' ? '{value} {unit} left' : '{value} {unit} used', {
+        value: value.toFixed(0),
+        unit: t(countUnit),
+      });
     }
     if (quota.format === 'dollars' && quota.usedValue !== null) {
       if (usageDisplay === 'left' && quota.limitValue !== null) {
-        return `$${Math.max(0, quota.limitValue - quota.usedValue).toFixed(2)} left`;
+        return t('${value} left', {
+          value: Math.max(0, quota.limitValue - quota.usedValue).toFixed(2),
+        });
       }
-      return `$${quota.usedValue.toFixed(2)} spent`;
+      return t('${value} spent', { value: quota.usedValue.toFixed(2) });
     }
-    return `${(usageDisplay === 'used' ? used : remaining).toFixed(0)}% ${usageDisplay}`;
+    const percent = (usageDisplay === 'used' ? used : remaining).toFixed(0);
+    return t(usageDisplay === 'used' ? '{percent}% used' : '{percent}% left', {
+      percent,
+    });
   });
   const readingTooltip = $derived.by(() => {
     if (quota.format === 'count' && quota.usedValue !== null && quota.limitValue !== null) {
       const opposite =
         usageDisplay === 'left' ? quota.usedValue : Math.max(0, quota.limitValue - quota.usedValue);
-      return `${opposite.toFixed(0)} ${countUnit} ${usageDisplay === 'left' ? 'used' : 'left'}`;
+      return t(usageDisplay === 'left' ? '{value} {unit} used' : '{value} {unit} left', {
+        value: opposite.toFixed(0),
+        unit: t(countUnit),
+      });
     }
     if (quota.format === 'dollars' && quota.usedValue !== null) {
-      if (usageDisplay === 'left') return `$${quota.usedValue.toFixed(2)} spent`;
-      if (quota.limitValue !== null)
-        return `$${Math.max(0, quota.limitValue - quota.usedValue).toFixed(2)} left`;
+      if (usageDisplay === 'left') {
+        return t('${value} spent', { value: quota.usedValue.toFixed(2) });
+      }
+      if (quota.limitValue !== null) {
+        return t('${value} left', {
+          value: Math.max(0, quota.limitValue - quota.usedValue).toFixed(2),
+        });
+      }
       return null;
     }
-    return usageDisplay === 'left' ? `${used.toFixed(0)}% used` : `${remaining.toFixed(0)}% left`;
+    return usageDisplay === 'left'
+      ? t('{percent}% used', { percent: used.toFixed(0) })
+      : t('{percent}% left', { percent: remaining.toFixed(0) });
   });
   const fillPercent = $derived.by(() => {
     if (
@@ -106,14 +127,16 @@
       (alwaysShowPacing && pace.severity === 'healthy'),
   );
   const paceLabel = $derived.by(() => {
-    if (pace.severity === 'spent') return 'Limit reached';
+    if (pace.severity === 'spent') return t('Limit reached');
     if (pace.severity === 'runningOut')
       return pace.runOutAt === null
         ? null
         : formatLimit(pace.runOutAt, now, resetDisplay, timeFormat);
     if (pace.projectedUsedPercent === null) return null;
     const left = Math.max(0, 100 - pace.projectedUsedPercent);
-    return pace.severity === 'close' ? `~${Math.max(1, Math.round(left))}% spare` : paceDetail;
+    return pace.severity === 'close'
+      ? t('~{percent}% spare', { percent: Math.max(1, Math.round(left)) })
+      : paceDetail;
   });
   const paceTickPercent = $derived(
     pace.evenPacePercent === null
@@ -134,15 +157,15 @@
   );
 </script>
 
-<section class="metric" aria-label={`${quota.label} quota`}>
+<section class="metric" aria-label={`${t(quota.label)} quota`}>
   <div class="metric__heading">
     <h2>
-      {quota.label}
+      {t(quota.label)}
       {#if quota.estimated}
         <span
           class="metric-estimate"
           data-tooltip={estimateNote}
-          aria-label="Estimated quota"
+          aria-label={t('Estimated quota')}
           role="img"><Icon name="about" size={11} strokeWidth={1.9} /></span
         >
       {/if}
@@ -164,7 +187,7 @@
           <span
             class="pace-warning"
             data-tooltip={paceDetail ?? undefined}
-            aria-label={pace.severity === 'spent' ? 'Limit reached' : 'Will reach limit'}
+            aria-label={pace.severity === 'spent' ? t('Limit reached') : t('Will reach limit')}
             ><span class="pace-warning__icon"
               ><Icon name="flame-filled" size={11} strokeWidth={1.8} /></span
             >{paceLabel ?? ''}</span
@@ -182,7 +205,7 @@
     <div
       class="meter meter--{severity}"
       role="progressbar"
-      aria-label={`${quota.label} used`}
+      aria-label={`${t(quota.label)} used`}
       aria-valuemin="0"
       aria-valuemax="100"
       aria-valuenow={used}
@@ -207,7 +230,9 @@
       {reading}
     </button>
     {#if freshSession}
-      <span data-tooltip="Sessions start after you send your first message.">Not started</span>
+      <span data-tooltip={t('Sessions start after you send your first message.')}
+        >{t('Not started')}</span
+      >
     {:else}
       <button type="button" data-tooltip={resetTooltip ?? undefined} onclick={onToggleReset}>
         {formatReset(quota.resetsAt, now, resetDisplay, timeFormat)}

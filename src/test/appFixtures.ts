@@ -136,6 +136,7 @@ export const providerCatalog: ProviderCatalog = {
       metrics: [
         quota('antigravity.geminiPro', 'Session', 'geminiPro', true),
         quota('antigravity.geminiWeekly', 'Weekly', 'geminiWeekly'),
+        quota('antigravity.geminiArgon', 'Gemini 4 Argon', 'geminiArgon'),
         quota('antigravity.claude', 'Claude', 'claude', true),
         quota('antigravity.claudeWeekly', 'Claude Weekly', 'claudeWeekly'),
       ],

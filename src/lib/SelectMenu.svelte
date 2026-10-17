@@ -3,7 +3,7 @@
   import { cubicOut } from 'svelte/easing';
   import type { TransitionConfig } from 'svelte/transition';
   import Icon from './Icon.svelte';
-import { t } from './i18n.svelte';
+  import { t } from './i18n.svelte';
 
   export interface SelectOption {
     value: string;

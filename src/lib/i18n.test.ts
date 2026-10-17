@@ -35,6 +35,23 @@ describe('i18n localization store and translations', () => {
     expect(t('Appearance')).toBe('外観');
     expect(t('Notifications')).toBe('通知');
     expect(t('Reset All Settings…')).toBe('すべての設定をリセット…');
+    expect(t('Session')).toBe('セッション');
+    expect(t('Weekly')).toBe('週間');
+    expect(t('Claude Weekly')).toBe('Claude 週間');
+    expect(t('Usage Trend')).toBe('利用トレンド');
+    expect(t('Not started')).toBe('未開始');
+    expect(t('dollars')).toBe('ドル');
+    expect(t('tokens')).toBe('トークン');
+  });
+
+  it('translates quota metrics and pacing strings in Japanese', () => {
+    setLocale('ja');
+    expect(t('{percent}% left', { percent: 100 })).toBe('残り 100%');
+    expect(t('{percent}% used', { percent: 20 })).toBe('使用済み 20%');
+    expect(t('~{percent}% left at reset', { percent: 77 })).toBe('リセット時 約77% 残り');
+    expect(t('Resets in {time}', { time: '5h' })).toBe('リセットまで 5h');
+    expect(t('Resets in {time}', { time: '7d 0h' })).toBe('リセットまで 7d 0h');
+    expect(t('Next update in {time}', { time: '5m' })).toBe('次回更新まで 5m');
   });
 
   it('interpolates parameters correctly in both languages', () => {

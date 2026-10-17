@@ -183,14 +183,16 @@
                 ><Icon name="grip-lines" size={16} strokeWidth={2} /></span
               >
               <span class="customize-metric-name"
-                >{metricDefinition(metric.id)?.label ?? metric.id}</span
+                >{t(metricDefinition(metric.id)?.label ?? metric.id)}</span
               >
               <span class="customize-metric-pin-slot">
                 {#if metricDefinition(metric.id)?.pinnable}<button
                     class:pinned={metric.pinned}
                     class="pin-button"
                     type="button"
-                    aria-label={`${metric.pinned ? 'Unpin' : 'Pin'} ${metricDefinition(metric.id)?.label}`}
+                    aria-label={t(metric.pinned ? 'Unpin {label}' : 'Pin {label}', {
+                      label: t(metricDefinition(metric.id)?.label ?? metric.id),
+                    })}
                     onclick={(event) => togglePin(metric, event.currentTarget)}
                     ><Icon
                       name={metric.pinned ? 'star-filled' : 'star'}
@@ -201,7 +203,9 @@
               </span>
               <label class="switch"
                 ><input
-                  aria-label={`Show ${metricDefinition(metric.id)?.label ?? metric.id}`}
+                  aria-label={t('Show {label}', {
+                    label: t(metricDefinition(metric.id)?.label ?? metric.id),
+                  })}
                   type="checkbox"
                   checked={metric.enabled}
                   onchange={(event) =>

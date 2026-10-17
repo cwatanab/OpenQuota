@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.svelte';
   import { formatMetricNumber, formatMetricValue } from './metricFormat';
   import type { ModelUsageBreakdown } from './types';
 
@@ -45,11 +46,11 @@
   class="model-usage-detail"
   style={`top:${top}px`}
   role="tooltip"
-  aria-label={`${title} model usage`}
+  aria-label={t('{title} model usage', { title: t(title) })}
   onmouseenter={onEnter}
   onmouseleave={onLeave}
 >
-  <h3>{title}</h3>
+  <h3>{t(title)}</h3>
   <div class="model-usage-list">
     {#each breakdown.models as model, index (model.model)}
       <div class="model-usage-row">
@@ -72,7 +73,7 @@
       </div>
     {/each}
   </div>
-  <p>{breakdown.sourceNote}</p>
+  <p>{t(breakdown.sourceNote)}</p>
 </div>
 
 <style>

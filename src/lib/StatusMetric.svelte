@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.svelte';
   import type { StatusMetric as StatusMetricValue } from './types';
 
   interface Props {
@@ -10,16 +11,16 @@
 </script>
 
 <div class="status-row">
-  <span>{label}</span>
+  <span>{t(label)}</span>
   {#if metric}
     <span
       class="status-badge status-badge--{metric.tone}"
-      data-tooltip={metric.subtitle ?? undefined}
+      data-tooltip={metric.subtitle ? t(metric.subtitle) : undefined}
     >
-      {metric.text}
+      {t(metric.text)}
     </span>
   {:else}
-    <span class="status-reading">No data</span>
+    <span class="status-reading">{t('No data')}</span>
   {/if}
 </div>
 

@@ -63,19 +63,18 @@ use crate::{
 fn install_tray(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(target_os = "macos")]
     let menu = {
-        let settings_item =
-            MenuItem::with_id(app, "settings", "Settings", true, Some("CmdOrCtrl+,"))?;
+        let settings_item = MenuItem::with_id(app, "settings", "設定…", true, Some("CmdOrCtrl+,"))?;
         let separator = PredefinedMenuItem::separator(app)?;
-        let quit = MenuItem::with_id(app, "quit", "Quit OpenQuota", true, Some("CmdOrCtrl+Q"))?;
+        let quit = MenuItem::with_id(app, "quit", "OpenQuotaを終了", true, Some("CmdOrCtrl+Q"))?;
         Menu::with_items(app, &[&settings_item, &separator, &quit])?
     };
     #[cfg(not(target_os = "macos"))]
     let menu = {
-        let open = MenuItem::with_id(app, "open", "Open OpenQuota", true, None::<&str>)?;
-        let customize = MenuItem::with_id(app, "customize", "Customize…", true, None::<&str>)?;
-        let settings_item = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
+        let open = MenuItem::with_id(app, "open", "OpenQuotaを開く", true, None::<&str>)?;
+        let customize = MenuItem::with_id(app, "customize", "カスタマイズ…", true, None::<&str>)?;
+        let settings_item = MenuItem::with_id(app, "settings", "設定…", true, None::<&str>)?;
         let separator = PredefinedMenuItem::separator(app)?;
-        let quit = MenuItem::with_id(app, "quit", "Quit OpenQuota", true, None::<&str>)?;
+        let quit = MenuItem::with_id(app, "quit", "OpenQuotaを終了", true, None::<&str>)?;
         Menu::with_items(app, &[&open, &customize, &settings_item, &separator, &quit])?
     };
 

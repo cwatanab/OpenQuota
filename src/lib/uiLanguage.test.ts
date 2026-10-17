@@ -73,9 +73,13 @@ describe('native UI language contract', () => {
     ]) {
       expect(settings).toContain(label);
     }
-    expect(settings).toContain("{ value: 'system', label: 'Auto' }");
-    expect(settings).toContain("{ value: 'twelveHour', label: '12-hour' }");
-    expect(settings).toContain("{ value: 'twentyFourHour', label: '24-hour' }");
+    expect(settings).toMatch(/\{\s*value:\s*'system',\s*label:\s*(?:t\('Auto'\)|'Auto')\s*\}/);
+    expect(settings).toMatch(
+      /\{\s*value:\s*'twelveHour',\s*label:\s*(?:t\('12-hour'\)|'12-hour')\s*\}/,
+    );
+    expect(settings).toMatch(
+      /\{\s*value:\s*'twentyFourHour',\s*label:\s*(?:t\('24-hour'\)|'24-hour')\s*\}/,
+    );
     expect(settings).not.toContain('<h2>Startup</h2>');
     expect(settings).not.toContain('Automatic Checks');
     expect(settings).not.toContain('Combined cost and token summary.');

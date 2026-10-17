@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import Icon from './Icon.svelte';
+  import { t } from './i18n.svelte';
   import { formatMetricNumber, formatMetricValue } from './metricFormat';
   import ModelUsageDetail from './ModelUsageDetail.svelte';
   import type { UsagePeriod } from './types';
@@ -16,7 +17,7 @@
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
   function reading(value: UsagePeriod | null) {
-    if (!value) return 'No data';
+    if (!value) return t('No data');
     const tokens = formatMetricValue(value.tokens, 'count', 'row', 'tokens');
     if (value.estimatedCostUsd === null) return tokens;
     return `${formatMetricNumber(value.estimatedCostUsd, 'dollars', 'row')} · ${tokens}`;
@@ -26,7 +27,7 @@
     if (value.modelBreakdown?.models.length) return undefined;
     const note =
       value.estimatedCostUsd !== null && value.costEstimated
-        ? 'Estimated locally, so it may be off'
+        ? t('Estimated locally, so it may be off')
         : undefined;
     const abbreviated =
       Math.abs(value.tokens) >= 1000 || Math.abs(value.estimatedCostUsd ?? 0) >= 1000;
@@ -76,7 +77,7 @@
 
 <div class="usage-row">
   <span
-    >{label}{#if period?.unknownModels?.length}<i
+    >{t(label)}{#if period?.unknownModels?.length}<i
         class="usage-label-warning"
         data-tooltip={unknownModelTooltip(period.unknownModels)}
         aria-label="This period used a model with unknown pricing"
@@ -97,7 +98,7 @@
 
 {#if open && period?.modelBreakdown}
   <ModelUsageDetail
-    title={label}
+    title={t(label)}
     breakdown={period.modelBreakdown}
     top={detailTop}
     onEnter={keepOpen}

@@ -400,9 +400,9 @@
       updatePanelHeightMode();
       updatePanelResizeEdge();
       settingsError = null;
-      showConfirmation('All settings restored');
+      showConfirmation(t('All settings restored'));
     } catch {
-      settingsError = 'Settings could not be reset.';
+      settingsError = t('Settings could not be reset.');
       updatePanelHeightMode();
     } finally {
       resettingAllSettings = false;
@@ -421,7 +421,7 @@
     } else {
       await navigator.clipboard.writeText(fallback);
     }
-    showConfirmation('Copied to clipboard');
+    showConfirmation(t('Copied to clipboard'));
   }
   async function shareProvider(providerId: string) {
     const current = settingsState;
@@ -442,7 +442,7 @@
       });
       await copyCanvas(canvas, snapshot);
     } catch {
-      settingsError = 'Provider screenshot could not be copied.';
+      settingsError = t('Provider screenshot could not be copied.');
     }
   }
   async function shareTotalSpend(projection: SpendProjection) {
@@ -460,14 +460,14 @@
       await copyCanvas(canvas, card.innerText.trim());
       return true;
     } catch {
-      settingsError = 'Total Spend screenshot could not be copied.';
+      settingsError = t('Total Spend screenshot could not be copied.');
       return false;
     }
   }
   async function copyLogPath() {
     const path = await getLogPath();
     await navigator.clipboard.writeText(path);
-    showConfirmation('Log path copied');
+    showConfirmation(t('Log path copied'));
   }
   async function openLogFolder() {
     await openSystemLogFolder();
@@ -787,13 +787,13 @@
     <div
       class="panel-resize-dragger panel-resize-dragger--top"
       role="separator"
-      aria-label="Resize panel height"
+      aria-label={t('Resize panel height')}
       aria-orientation="horizontal"
       onpointerdown={handlePanelResizePointerDown}
     ></div>
   {/if}
   {#if floatingWindow}
-    <header class="floating-chrome" aria-label="OpenQuota window controls">
+    <header class="floating-chrome" aria-label={t('OpenQuota window controls')}>
       <div class="floating-chrome__drag">
         <OpenQuotaMark size={14} />
         <span>OpenQuota</span>
@@ -801,7 +801,7 @@
       <button
         class="floating-chrome__close"
         type="button"
-        aria-label={settingsState?.trayAvailable ? 'Hide OpenQuota' : 'Close OpenQuota'}
+        aria-label={settingsState?.trayAvailable ? t('Hide OpenQuota') : t('Close OpenQuota')}
         onclick={closeMainWindow}
       >
         <Icon name="close" size={12} strokeWidth={2.1} />
@@ -937,10 +937,10 @@
           type="button"
           onclick={refresh}
           disabled={anyRefreshing}
-          aria-label="Refresh all provider usage"
+          aria-label={t('Refresh all provider usage')}
         >
           <span>OpenQuota {appVersion}</span><small
-            >{anyRefreshing ? 'Updating…' : nextUpdateLabel(lastFullRefresh, now)}</small
+            >{anyRefreshing ? t('Updating…') : nextUpdateLabel(lastFullRefresh, now)}</small
           >
         </button>
         {#if screen === 'dashboard'}
@@ -950,9 +950,9 @@
                 class="window-mode-toggle"
                 class:window-mode-toggle--active={floatingWindow}
                 type="button"
-                aria-label={floatingWindow ? 'Return to Tray Popup' : 'Keep Window Open'}
+                aria-label={floatingWindow ? t('Return to Tray Popup') : t('Keep Window Open')}
                 aria-pressed={floatingWindow}
-                data-tooltip={floatingWindow ? 'Return to Tray Popup' : 'Keep Window Open'}
+                data-tooltip={floatingWindow ? t('Return to Tray Popup') : t('Keep Window Open')}
                 onclick={toggleFloatingWindow}
               >
                 <Icon name={floatingWindow ? 'pin-filled' : 'pin'} size={14} strokeWidth={1.9} />
@@ -990,7 +990,8 @@
                   type="button"
                   aria-label={t('Settings')}
                   onclick={() => navigate('settings')}
-                  ><Icon name="gear" /><span>{t('Settings')}</span><kbd>{shortcuts.settings}</kbd></button
+                  ><Icon name="gear" /><span>{t('Settings')}</span><kbd>{shortcuts.settings}</kbd
+                  ></button
                 >
                 <hr />
                 <details
@@ -1083,20 +1084,20 @@
           role="dialog"
           tabindex="-1"
           aria-modal="true"
-          aria-label="About OpenQuota"
+          aria-label={t('About OpenQuota')}
         >
           <button
             bind:this={aboutCloseButton}
             class="about-card__close"
             type="button"
-            aria-label="Close About"
+            aria-label={t('Close About')}
             onclick={() => void closeAbout()}
             ><Icon name="close" size={11} strokeWidth={2.3} /></button
           >
           <OpenQuotaMark size={44} />
           <h1>OpenQuota</h1>
-          <p>Version {appVersion}</p>
-          <small>Private, local usage monitoring for your AI coding tools.</small>
+          <p>{t('Version {version}', { version: appVersion })}</p>
+          <small>{t('Private, local usage monitoring for your AI coding tools.')}</small>
         </div>
       </div>
     {/if}
@@ -1105,7 +1106,7 @@
       {#if settingsError}
         <div class="notice notice--blocking" role="alert">{settingsError}</div>
       {:else}
-        <p class="empty-row">Loading OpenQuota…</p>
+        <p class="empty-row">{t('Loading OpenQuota…')}</p>
       {/if}
     </div>
   {/if}
@@ -1113,7 +1114,7 @@
     <div
       class="panel-resize-dragger panel-resize-dragger--bottom"
       role="separator"
-      aria-label="Resize panel height"
+      aria-label={t('Resize panel height')}
       aria-orientation="horizontal"
       onpointerdown={handlePanelResizePointerDown}
     ></div>

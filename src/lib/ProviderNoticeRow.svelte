@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { getEffectiveLocale, t } from './i18n.svelte';
   import type { ProviderNotice } from './types';
 
   interface Props {
@@ -7,6 +8,30 @@
   }
 
   let { notice }: Props = $props();
+
+  function formatNotice(message: string): string {
+    const stalePrefix = 'Showing the last successful limits · ';
+    if (message.startsWith(stalePrefix)) {
+      const rest = message.slice(stalePrefix.length);
+      return t('Showing the last successful limits · {retry}', { retry: formatNotice(rest) });
+    }
+    const retryPrefix = 'Retrying in about ';
+    if (message.startsWith(retryPrefix)) {
+      if (getEffectiveLocale() === 'ja') {
+        const time = message
+          .slice(retryPrefix.length)
+          .replace(/minutes?/, '分')
+          .replace(/seconds?/, '秒')
+          .replace(/hours?/, '時間');
+        return `${time}後に再試行`;
+      }
+      return message;
+    }
+    if (message === 'Ready to retry') {
+      return t('Ready to retry');
+    }
+    return t(message);
+  }
 </script>
 
 <div
@@ -15,7 +40,7 @@
 >
   <span class="provider-notice-icon"><Icon name="warning" size={12} strokeWidth={2} /></span>
   <span class="provider-notice-copy"
-    ><strong>{notice.title}</strong><small>{notice.message}</small></span
+    ><strong>{t(notice.title)}</strong><small>{formatNotice(notice.message)}</small></span
   >
 </div>
 

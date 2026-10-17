@@ -1,3 +1,4 @@
+import { t } from './i18n.svelte';
 import type { QuotaWindow } from './types';
 
 export type PaceSeverity = 'level' | 'healthy' | 'close' | 'runningOut' | 'spent';
@@ -58,13 +59,19 @@ export function isFreshSessionWindow(window: QuotaWindow, now: number, isSession
 
 export function paceTooltip(value: PaceProjection) {
   if (value.severity === 'level') return null;
-  if (value.severity === 'spent') return 'Limit reached';
+  if (value.severity === 'spent') return t('Limit reached');
   const projected = value.projectedUsedPercent;
   if (projected === null) return null;
-  if (value.severity === 'healthy') return `~${Math.round(100 - projected)}% left at reset`;
-  if (value.severity === 'close') return `~${Math.round(projected)}% used at reset`;
-  if (projected <= 100) return '~100% used at reset';
-  return `~${Math.max(1, Math.round(projected - 100))}% over limit at reset`;
+  if (value.severity === 'healthy') {
+    return t('~{percent}% left at reset', { percent: Math.round(100 - projected) });
+  }
+  if (value.severity === 'close') {
+    return t('~{percent}% used at reset', { percent: Math.round(projected) });
+  }
+  if (projected <= 100) return t('~100% used at reset');
+  return t('~{percent}% over limit at reset', {
+    percent: Math.max(1, Math.round(projected - 100)),
+  });
 }
 
 type TimeFormat = 'system' | 'twelveHour' | 'twentyFourHour';
@@ -75,9 +82,9 @@ export function formatReset(
   mode: 'countdown' | 'exact',
   timeFormat: TimeFormat = 'system',
 ) {
-  if (!value) return 'Reset unavailable';
+  if (!value) return t('Reset unavailable');
   const reset = new Date(value).getTime();
-  if (!Number.isFinite(reset)) return 'Reset unavailable';
+  if (!Number.isFinite(reset)) return t('Reset unavailable');
   return formatDeadline('Resets', reset, now, mode, timeFormat);
 }
 
@@ -87,7 +94,7 @@ export function formatLimit(
   mode: 'countdown' | 'exact',
   timeFormat: TimeFormat = 'system',
 ) {
-  if (value === null) return 'Limit reached';
+  if (value === null) return t('Limit reached');
   return formatDeadline('Limit', value, now, mode, timeFormat);
 }
 
@@ -100,9 +107,11 @@ function formatDeadline(
 ) {
   const remaining = value - now;
   if (remaining <= 0 || (mode === 'countdown' && remaining <= 5 * 60_000)) {
-    return `${prefix} soon`;
+    return t(`${prefix} soon`);
   }
-  if (mode === 'countdown') return `${prefix} in ${formatDuration(remaining)}`;
+  if (mode === 'countdown') {
+    return t(`${prefix} in {time}`, { time: formatDuration(remaining) });
+  }
 
   const date = new Date(value);
   const current = new Date(now);
@@ -114,13 +123,13 @@ function formatDeadline(
     minute: '2-digit',
     hour12: timeFormat === 'system' ? undefined : timeFormat === 'twelveHour',
   });
-  if (dayDifference <= 0) return `${prefix} today at ${time}`;
-  if (dayDifference === 1) return `${prefix} tomorrow at ${time}`;
+  if (dayDifference <= 0) return t(`${prefix} today at {time}`, { time });
+  if (dayDifference === 1) return t(`${prefix} tomorrow at {time}`, { time });
   const monthDay = new Intl.DateTimeFormat(undefined, {
     month: 'short',
     day: 'numeric',
   }).format(date);
-  return `${prefix} ${monthDay} at ${time}`;
+  return t(`${prefix} {date} at {time}`, { date: monthDay, time });
 }
 
 function formatDuration(milliseconds: number) {

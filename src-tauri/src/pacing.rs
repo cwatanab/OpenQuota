@@ -123,17 +123,17 @@ pub enum Milestone {
 impl Milestone {
     pub fn title(self) -> &'static str {
         match self {
-            Self::AlmostOut => "Almost Out",
-            Self::CuttingItClose => "Cutting It Close",
-            Self::WillRunOut => "Will Run Out",
+            Self::AlmostOut => "まもなく上限",
+            Self::CuttingItClose => "上限間近",
+            Self::WillRunOut => "使い切る見込み",
         }
     }
 
     pub fn body(self) -> &'static str {
         match self {
-            Self::AlmostOut => "Under 10% usage remaining for this window.",
-            Self::CuttingItClose => "Projected to finish close to your limit.",
-            Self::WillRunOut => "Projected to run out before the limit resets.",
+            Self::AlmostOut => "このウィンドウの残量が10%未満です。",
+            Self::CuttingItClose => "上限ギリギリで終了する見込みです。",
+            Self::WillRunOut => "リセット前に上限に達する見込みです。",
         }
     }
 }
